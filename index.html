@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1 Flashcards - Data Representation</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --accent: #f59e0b;
+        }
+
+        .dark-theme {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --accent: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        button, select {
+            padding: 0.5rem 0.85rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover, select:hover {
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .filter-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 3D Flashcard Flip Effect */
+        .flashcard-container {
+            width: 100%;
+            height: 380px;
+            perspective: 1000px;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: var(--card-bg);
+            border-color: var(--primary);
+        }
+
+        .card-tag {
+            background-color: var(--border-color);
+            color: var(--text-muted);
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-content {
+            font-size: 1.35rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-color);
+            margin: auto 0;
+        }
+
+        .card-back .card-content {
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .card-hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .mastery-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .btn-mastered {
+            background-color: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .btn-mastered:hover {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-review {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-review:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .counter {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .keyboard-shortcuts {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 1rem;
+        }
+
+        kbd {
+            background-color: var(--border-color);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>IGCSE Computer Science</h1>
+            <p>Chapter 1 Flashcards: Data Representation (60 Cards)</p>
+        </div>
+        <div class="controls">
+            <button id="shuffleBtn">🔀 Shuffle</button>
+            <button id="themeToggle">🌓 Theme</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="filter-bar">
+            <select id="topicFilter">
+                <option value="all">All Topics (60 Flashcards)</option>
+                <option value="1.1">1.1 Number Systems</option>
+                <option value="1.2">1.2 Text, Sound & Images</option>
+                <option value="1.3">1.3 Data Storage & Compression</option>
+            </select>
+            <div class="counter" id="cardCounter">Card 1 of 60</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="flashcard-container" id="cardContainer">
+            <div class="flashcard" id="flashcard">
+                <div class="card-front">
+                    <span class="card-tag" id="cardTopic">TOPIC</span>
+                    <div class="card-content" id="cardQuestion">Question loading...</div>
+                    <span class="card-hint">Click or press Space / Enter to flip</span>
+                </div>
+                <div class="card-back">
+                    <span class="card-tag" style="border-color: var(--primary); color: var(--primary);">ANSWER</span>
+                    <div class="card-content" id="cardAnswer">Answer loading...</div>
+                    <span class="card-hint">Click to flip back</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-controls">
+            <button id="prevBtn">← Previous</button>
+            
+            <div class="btn-group">
+                <button class="mastery-btn btn-review" id="reviewBtn">❌ Needs Review</button>
+                <button class="mastery-btn btn-mastered" id="masteredBtn">✅ Mastered</button>
+            </div>
+
+            <button id="nextBtn" class="btn-primary">Next →</button>
+        </div>
+
+        <div class="keyboard-shortcuts">
+            <span><kbd>Space</kbd> Flip</span>
+            <span><kbd>←</kbd> Previous</span>
+            <span><kbd>→</kbd> Next</span>
+        </div>
+    </main>
+
+    <script>
+        const flashcardsData = [
+            // --- 1.1 NUMBER SYSTEMS (20 Flashcards) ---
+            {
+                id: 1,
+                topic: "1.1 Number Systems",
+                question: "Why do computer systems process data strictly in binary?",
+                answer: "Computers are built from logic gates and transistors that operate in two distinct electronic states: ON (1) and OFF (0)."
+            },
+            {
+                id: 2,
+                topic: "1.1 Number Systems",
+                question: "What is the definition of a bit?",
+                answer: "A bit (short for Binary Digit) is the basic computing element taking the value of either 0 or 1."
+            },
+            {
+                id: 3,
+                topic: "1.1 Number Systems",
+                question: "What is Denary (Base-10)?",
+                answer: "A number system using ten digits (0 to 9) standard in human counting."
+            },
+            {
+                id: 4,
+                topic: "1.1 Number Systems",
+                question: "What is Binary (Base-2)?",
+                answer: "A number system using only two digits (0 and 1) used directly by computer hardware."
+            },
+            {
+                id: 5,
+                topic: "1.1 Number Systems",
+                question: "What is Hexadecimal (Base-16)?",
+                answer: "A number system using 16 symbols: digits 0–9 and letters A–F (where A=10, B=11, C=12, D=13, E=14, F=15)."
+            },
+            {
+                id: 6,
+                topic: "1.1 Number Systems",
+                question: "Why do programmers use Hexadecimal instead of Binary?",
+                answer: "Hexadecimal numbers are much shorter, easier for humans to read/remember, and reduce transcription errors."
+            },
+            {
+                id: 7,
+                topic: "1.1 Number Systems",
+                question: "What is a MAC address and its format?",
+                answer: "Media Access Control address: a 48-bit hex ID for network hardware formatted as NN-NN-NN-DD-DD-DD (Manufacturer-Device)."
+            },
+            {
+                id: 8,
+                topic: "1.1 Number Systems",
+                question: "What is a computer Error Code?",
+                answer: "A hexadecimal error message generated by a system to indicate specific hardware or memory faults."
+            },
+            {
+                id: 9,
+                topic: "1.1 Number Systems",
+                question: "How are HTML Color Codes formatted?",
+                answer: "Using 6 hexadecimal digits (#RRGGBB) representing intensities of Red, Green, and Blue from 00 to FF."
+            },
+            {
+                id: 10,
+                topic: "1.1 Number Systems",
+                question: "What is the maximum denary value of an unsigned 8-bit binary number?",
+                answer: "255 (binary 11111111)."
+            },
+            {
+                id: 11,
+                topic: "1.1 Number Systems",
+                question: "What is an Overflow Error during binary addition?",
+                answer: "An error that occurs when a calculation produces a result exceeding the register size limit (e.g., > 255 in an 8-bit register)."
+            },
+            {
+                id: 12,
+                topic: "1.1 Number Systems",
+                question: "What is the mathematical effect of a Logical Left Shift by 1 place?",
+                answer: "Multiplies the binary integer by 2."
+            },
+            {
+                id: 13,
+                topic: "1.1 Number Systems",
+                question: "What is the mathematical effect of a Logical Right Shift by 2 places?",
+                answer: "Divides the binary integer by 4 (2^2)."
+            },
+            {
+                id: 14,
+                topic: "1.1 Number Systems",
+                question: "What happens to bits shifted out of a register during a logical shift?",
+                answer: "The bits are permanently lost/discarded, and empty bit slots are filled with zeros."
+            },
+            {
+                id: 15,
+                topic: "1.1 Number Systems",
+                question: "What is Two's Complement notation used for?",
+                answer: "A binary system used to represent both positive and negative integers in computers."
+            },
+            {
+                id: 16,
+                topic: "1.1 Number Systems",
+                question: "In an 8-bit Two's Complement number, what is the value of the most significant bit (MSB)?",
+                answer: "-128."
+            },
+            {
+                id: 17,
+                topic: "1.1 Number Systems",
+                question: "What is the number range for an 8-bit Two's Complement integer?",
+                answer: "-128 to +127."
+            },
+            {
+                id: 18,
+                topic: "1.1 Number Systems",
+                question: "How do you convert a positive binary number to negative in Two's Complement?",
+                answer: "Invert all the bits (0→1, 1→0) and add 1 to the result."
+            },
+            {
+                id: 19,
+                topic: "1.1 Number Systems",
+                question: "How can you instantly identify if a Two's Complement number is negative?",
+                answer: "The leftmost bit (Most Significant Bit) is 1."
+            },
+            {
+                id: 20,
+                topic: "1.1 Number Systems",
+                question: "Convert denary 41 to 8-bit binary.",
+                answer: "00101001 (32 + 8 + 1)."
+            },
+
+            // --- 1.2 TEXT, SOUND AND IMAGES (20 Flashcards) ---
+            {
+                id: 21,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is a Character Set?",
+                answer: "A defined list of characters recognized by computer hardware and software, each represented by a unique binary code."
+            },
+            {
+                id: 22,
+                topic: "1.2 Text, Sound & Images",
+                question: "How many bits does standard ASCII use, and how many characters can it represent?",
+                answer: "7 bits; 128 unique characters (codes 0 to 127)."
+            },
+            {
+                id: 23,
+                topic: "1.2 Text, Sound & Images",
+                question: "How many bits does Extended ASCII use, and how many characters can it represent?",
+                answer: "8 bits; 256 unique characters (codes 0 to 255)."
+            },
+            {
+                id: 24,
+                topic: "1.2 Text, Sound & Images",
+                question: "Why was Unicode introduced?",
+                answer: "To represent characters and symbols from all global languages and scripts, far exceeding ASCII's 256 character limit."
+            },
+            {
+                id: 25,
+                topic: "1.2 Text, Sound & Images",
+                question: "How does Unicode maintain backward compatibility with ASCII?",
+                answer: "The first 128 character codes in Unicode are identical to standard ASCII."
+            },
+            {
+                id: 26,
+                topic: "1.2 Text, Sound & Images",
+                question: "How is analogue sound converted into digital data?",
+                answer: "An Analogue-to-Digital Converter (ADC) samples continuous sound wave amplitudes at regular time intervals and converts them to binary."
+            },
+            {
+                id: 27,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is Sound Sample Rate?",
+                answer: "The number of audio samples taken per second, measured in Hertz (Hz) or kilohertz (kHz)."
+            },
+            {
+                id: 28,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is Sound Sample Resolution (Bit Depth)?",
+                answer: "The number of bits allocated to store each sound sample measurement."
+            },
+            {
+                id: 29,
+                topic: "1.2 Text, Sound & Images",
+                question: "What are the effects of increasing sound sample rate and resolution?",
+                answer: "Sound fidelity improves (closer to original wave), but file size increases."
+            },
+            {
+                id: 30,
+                topic: "1.2 Text, Sound & Images",
+                question: "What formula calculates uncompressed mono sound file size in bits?",
+                answer: "Sample Rate (Hz) × Sample Resolution (bits) × Duration (seconds)."
+            },
+            {
+                id: 31,
+                topic: "1.2 Text, Sound & Images",
+                question: "What hardware converts stored binary audio data back to sound waves for speakers?",
+                answer: "Digital-to-Analogue Converter (DAC)."
+            },
+            {
+                id: 32,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is a Bitmap image?",
+                answer: "An image composed of a grid of picture elements (pixels), where each pixel color is stored as a binary code."
+            },
+            {
+                id: 33,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is a Pixel?",
+                answer: "Short for Picture Element: the smallest single controllable component of a bitmap image."
+            },
+            {
+                id: 34,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is Image Resolution?",
+                answer: "The number of pixels making up a bitmap image, expressed as width × height in pixels."
+            },
+            {
+                id: 35,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is Colour Depth?",
+                answer: "The number of bits used to represent the color of a single pixel."
+            },
+            {
+                id: 36,
+                topic: "1.2 Text, Sound & Images",
+                question: "How many unique colors can be displayed with a colour depth of 8 bits per pixel?",
+                answer: "256 colors (2^8)."
+            },
+            {
+                id: 37,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is True Colour depth?",
+                answer: "24 bits per pixel (8 bits each for RGB), yielding ~16.7 million colors."
+            },
+            {
+                id: 38,
+                topic: "1.2 Text, Sound & Images",
+                question: "What formula calculates uncompressed bitmap image file size in bits?",
+                answer: "Image Width (pixels) × Image Height (pixels) × Colour Depth (bits)."
+            },
+            {
+                id: 39,
+                topic: "1.2 Text, Sound & Images",
+                question: "What happens when you increase image resolution and colour depth?",
+                answer: "Image clarity and color detail improve, but file size increases."
+            },
+            {
+                id: 40,
+                topic: "1.2 Text, Sound & Images",
+                question: "What is Pixelation?",
+                answer: "The blocky visual effect seen when a low-resolution bitmap is enlarged so individual pixels become visible."
+            },
+
+            // --- 1.3 DATA STORAGE AND FILE COMPRESSION (20 Flashcards) ---
+            {
+                id: 41,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is a Byte?",
+                answer: "A unit of data storage equal to 8 bits."
+            },
+            {
+                id: 42,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is a Nibble?",
+                answer: "A unit of data storage equal to 4 bits (half a byte)."
+            },
+            {
+                id: 43,
+                topic: "1.3 Data Storage & Compression",
+                question: "Why does internal memory (RAM/ROM) use IEC binary prefixes (KiB, MiB, GiB)?",
+                answer: "RAM/ROM addressing is organized in exact powers of 2 (2^10, 2^20), which IEC binary units accurately represent."
+            },
+            {
+                id: 44,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is 1 Kibibyte (1 KiB) in bytes?",
+                answer: "1,024 bytes (2^10 bytes)."
+            },
+            {
+                id: 45,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is 1 Mebibyte (1 MiB) in bytes?",
+                answer: "1,048,576 bytes (2^20 bytes)."
+            },
+            {
+                id: 46,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is 1 Kilobyte (1 KB) in the denary system?",
+                answer: "1,000 bytes (10^3 bytes)."
+            },
+            {
+                id: 47,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is Network Bandwidth?",
+                answer: "The maximum rate of data transfer across a network, measured in bits per second."
+            },
+            {
+                id: 48,
+                topic: "1.3 Data Storage & Compression",
+                question: "Name 3 major benefits of compressing data files.",
+                answer: "Saves storage space, reduces transmission/download time, and lowers bandwidth/cloud costs."
+            },
+            {
+                id: 49,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is Lossy Compression?",
+                answer: "A compression algorithm that permanently removes unnecessary/redundant data; the original file cannot be restored."
+            },
+            {
+                id: 50,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is Lossless Compression?",
+                answer: "A compression technique that reduces file size without discarding any original data; the original file can be 100% reconstructed."
+            },
+            {
+                id: 51,
+                topic: "1.3 Data Storage & Compression",
+                question: "How does lossy compression reduce audio file size (e.g. MP3)?",
+                answer: "Uses psychoacoustics to remove sounds outside human hearing or quiet sounds masked by louder audio."
+            },
+            {
+                id: 52,
+                topic: "1.3 Data Storage & Compression",
+                question: "How does JPEG lossy compression shrink image files?",
+                answer: "Reduces color detail and splits images into 8x8 pixel blocks, discarding color variations human eyes barely notice."
+            },
+            {
+                id: 53,
+                topic: "1.3 Data Storage & Compression",
+                question: "Why MUST software applications and spreadsheets use Lossless compression?",
+                answer: "Any lost data or code changes would corrupt executable programs or produce invalid calculation results."
+            },
+            {
+                id: 54,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is Run-Length Encoding (RLE)?",
+                answer: "A lossless compression algorithm that replaces sequences of adjacent identical data units with a count-value pair."
+            },
+            {
+                id: 55,
+                topic: "1.3 Data Storage & Compression",
+                question: "Compress the text sequence 'AAAAABBBCC' using simple RLE.",
+                answer: "5A3B2C."
+            },
+            {
+                id: 56,
+                topic: "1.3 Data Storage & Compression",
+                question: "When can basic RLE increase file size instead of compressing it?",
+                answer: "When data has no adjacent repeating items (e.g. 'ABC'), causing RLE to write counts of 1 ('1A1B1C'), doubling size."
+            },
+            {
+                id: 57,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is the purpose of an RLE Flag byte?",
+                answer: "Signals that the next bytes represent a run of identical data, while unflagged bytes are read as single items."
+            },
+            {
+                id: 58,
+                topic: "1.3 Data Storage & Compression",
+                question: "Name two common Lossy file formats.",
+                answer: "JPEG (images) and MP3/MP4 (audio/video)."
+            },
+            {
+                id: 59,
+                topic: "1.3 Data Storage & Compression",
+                question: "Name two common Lossless file formats.",
+                answer: "PNG (images) and FLAC (audio)."
+            },
+            {
+                id: 60,
+                topic: "1.3 Data Storage & Compression",
+                question: "What is the basic computer data type 'Boolean'?",
+                answer: "A data type that holds one of only two truth values: TRUE or FALSE."
+            }
+        ];
+
+        // State variables
+        let filteredCards = [...flashcardsData];
+        let currentIndex = 0;
+        let isFlipped = false;
+        let masteredCards = new Set();
+        let reviewCards = new Set();
+
+        // DOM Elements
+        const flashcard = document.getElementById('flashcard');
+        const cardContainer = document.getElementById('cardContainer');
+        const cardTopic = document.getElementById('cardTopic');
+        const cardQuestion = document.getElementById('cardQuestion');
+        const cardAnswer = document.getElementById('cardAnswer');
+        const cardCounter = document.getElementById('cardCounter');
+        const progressBar = document.getElementById('progressBar');
+        const topicFilter = document.getElementById('topicFilter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const masteredBtn = document.getElementById('masteredBtn');
+        const reviewBtn = document.getElementById('reviewBtn');
+
+        // Theme Toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+        });
+
+        // Topic Filter
+        topicFilter.addEventListener('change', () => {
+            const val = topicFilter.value;
+            if (val === 'all') {
+                filteredCards = [...flashcardsData];
+            } else {
+                filteredCards = flashcardsData.filter(c => c.topic.startsWith(val));
+            }
+            currentIndex = 0;
+            isFlipped = false;
+            flashcard.classList.remove('flipped');
+            updateCard();
+        });
+
+        // Shuffle
+        shuffleBtn.addEventListener('click', () => {
+            for (let i = filteredCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+            }
+            currentIndex = 0;
+            isFlipped = false;
+            flashcard.classList.remove('flipped');
+            updateCard();
+        });
+
+        // Flip Card
+        cardContainer.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            flashcard.classList.toggle('flipped', isFlipped);
+        });
+
+        // Navigation
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                resetAndNext();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < filteredCards.length - 1) {
+                currentIndex++;
+                resetAndNext();
+            }
+        });
+
+        function resetAndNext() {
+            isFlipped = false;
+            flashcard.classList.remove('flipped');
+            setTimeout(updateCard, 150);
+        }
+
+        // Mastery Buttons
+        masteredBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const currentId = filteredCards[currentIndex].id;
+            masteredCards.add(currentId);
+            reviewCards.delete(currentId);
+            if (currentIndex < filteredCards.length - 1) {
+                currentIndex++;
+                resetAndNext();
+            }
+        });
+
+        reviewBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const currentId = filteredCards[currentIndex].id;
+            reviewCards.add(currentId);
+            masteredCards.delete(currentId);
+            if (currentIndex < filteredCards.length - 1) {
+                currentIndex++;
+                resetAndNext();
+            }
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                isFlipped = !isFlipped;
+                flashcard.classList.toggle('flipped', isFlipped);
+            } else if (e.code === 'ArrowRight') {
+                if (currentIndex < filteredCards.length - 1) {
+                    currentIndex++;
+                    resetAndNext();
+                }
+            } else if (e.code === 'ArrowLeft') {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    resetAndNext();
+                }
+            }
+        });
+
+        // Render Card Function
+        function updateCard() {
+            if (filteredCards.length === 0) {
+                cardQuestion.innerText = "No flashcards found for this topic.";
+                cardAnswer.innerText = "";
+                cardCounter.innerText = "0 of 0";
+                return;
+            }
+
+            const card = filteredCards[currentIndex];
+            cardTopic.innerText = card.topic;
+            cardQuestion.innerText = card.question;
+            cardAnswer.innerText = card.answer;
+            
+            cardCounter.innerText = `Card ${currentIndex + 1} of ${filteredCards.length}`;
+            progressBar.style.width = `${((currentIndex + 1) / filteredCards.length) * 100}%`;
+
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === filteredCards.length - 1;
+        }
+
+        // Initial Load
+        updateCard();
+    </script>
+</body>
+</html>
